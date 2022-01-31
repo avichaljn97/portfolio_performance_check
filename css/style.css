@@ -1,0 +1,211 @@
+body{
+    height: 2000px;
+    background-color: rgba(242, 237, 208, 0.8);
+    margin: 0px auto;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-column-gap:2%;
+    grid-template-rows: repeat(30, 1fr);
+}
+
+.chart_container{
+    margin-left: 5px;
+    position:  relative;
+    grid-column: 1 / 8;
+    grid-row: 3 / 10;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(20, 1fr);
+}
+
+.lateruse{
+    grid-column: 8/ -1;
+    grid-row: 3 / 18;
+}
+
+.stock_chartnprice{
+    grid-column: 1/-1;
+    grid-row: 1/-2;
+}
+
+.chart_wrapper{
+    margin: 0px auto;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.stock_graph{
+    background-color: rgb(217, 197, 137);
+    padding: 0px;
+    grid-column: 1/-2;
+    grid-row: 1/-2;
+    position: relative;
+}
+
+#for_crossHair{
+    position: absolute;
+    top:0;
+}
+
+#price_bar_highlighted_canvas{
+    position: absolute;
+    top:0;
+    left:0;
+}
+
+#time_bar_highlighted_canvas{
+    position: absolute;
+    bottom:0;
+    left:0;
+}
+
+.stock_label{
+    margin-top: 5px;
+    margin-left: 5px;
+    font-family: 'Bitter', serif;
+    height: 50px;
+    width: 30%;
+    border:1px rgba( 113, 95, 117, 0.7) solid;
+    background-color: rgba( 113, 95, 117, 0.2);
+    position: absolute;
+    border-radius: 5px;
+    color: seashell;
+    z-index: 2;
+}
+
+
+.y_axis{
+    cursor: ns-resize;
+    grid-column: -2/-1;
+    border-left: 1px solid rgba( 113, 95, 117, 0.5);
+    padding:0px;
+    grid-column: -2/-1;
+    grid-row: 1/-2;
+}
+
+.x_axis{
+    grid-column: 1/-2;
+    grid-row: -2/-1;
+    cursor: ew-resize;
+    border-top: 1px solid rgba( 113, 95, 117, 0.5);
+}
+
+.price_bar{
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    position: relative;
+}
+
+
+.time_bar{
+    height: 100%;
+    width: 100%;
+    margin: 0px auto;
+    position: relative;
+}
+
+.time_axis{
+    grid-column: 1 / -2;
+    grid-row: -2 / -1;
+}
+
+.duration_bar{
+    grid-column: 1 / 9;
+    grid-row: 17 / 18;
+    background-color: rgb(0, 63, 99);
+    position: relative;
+    background-color: rgb(0, 63, 99);
+    height: 100%;
+    margin-top: 5px;
+}
+
+.duration_button{
+    height: 100%;
+    background-color: rosybrown;
+    position: absolute;
+    width:40px;
+    text-align: center;
+    margin: auto;
+    padding-top: 10px;
+}
+
+.day1{				
+    right:0;
+}
+.week1{				
+    right:50;
+}
+.month3{				
+    right:100;
+}
+.month6{				
+    right:150;
+}
+.ALL{
+    right:200;
+}
+
+.shift{
+    right:200;
+}
+
+.nil{
+    grid-column: -2/-1;
+    grid-row: -2/-1;
+    background-color: rgba(36, 0, 54,1);
+}
+
+#can{
+    margin: 0px auto;
+}
+
+.axis{
+    background-color: rgb(36, 0, 54);
+}
+
+.here{
+    cursor: pointer;
+    border-radius: 10px;
+    position: absolute;
+    bottom:15px;
+    left: 45%;
+    background-color: seagreen;
+}
+
+.each_stock{
+    margin-top: 1px;
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-column-gap:2%;
+    background-color: aliceblue;
+    height: 50px;
+}
+
+.stock_name{
+    padding-top: 15px;
+    margin-left: 3px;
+    grid-row:1;
+    grid-column: 1/6;
+}
+
+.stock_quantity{
+    padding-top: 15px;
+    margin-left: 3px;
+    grid-row: 1;
+    grid-column: 7/8;
+    text-align: end;
+}
+
+.avg_price{
+    padding-top: 15px;
+    padding-right: 3px;
+    grid-row: 1;
+    grid-column: 8/-1;
+    text-align: end;
+}
+
+.selected{
+    border-left: 4px solid rgba(205, 84, 233, 0.5);
+}
