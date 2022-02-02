@@ -1,18 +1,51 @@
 const express= require('express')
 const session= require('express-session')
+const bcrypt = require("bcryptjs")
 const path=require('path')
 
 const fs=require('fs')
-const { time } = require('console')
+const res = require('express/lib/response')
+const { response } = require('express')
 
 const app=express()
 const port=3000
+app.use(express.json());
 app.use("/chart-widget", express.static('./chart-widget/'));
 app.use("/my_stocks", express.static('./my_stocks/'));
 app.set("view engine","hbs");
 app.use("/nse_stocks", express.static('./nse_stocks/'));
 app.use("/css",express.static('./css/'));
-app.use(session({secret:'$u9rc0d='}));
+app.use(express.urlencoded({extended:false}));
+app.use(session({
+    secret:'$u9rc0d=',
+    saveUninitialized: false,
+    resave: false
+}));
+
+var users;
+
+function createUserID(){
+    users=JSON.parse(fs.readFileSync("users.json"));
+    var userid=String.fromCharCode(65+Math.floor((Math.random())*25),65+Math.floor((Math.random())*25),
+    65+Math.floor((Math.random())*25));
+    userid=userid+Math.floor((Math.random())*999);
+    if(users.hasOwnProperty(userid)){
+        createUserID();
+    }
+    else{
+        return userid;
+    }
+}
+
+const isAuth = (request,response,next)=>{
+    if(request.session.isAuth){
+        request.session.success="SUCCESSFUL";
+        next();
+    }
+    else{
+        response.redirect('/');
+    }
+};
 
 creatingNSEjson();
 function creatingNSEjson(){
@@ -182,18 +215,72 @@ function operation(buy_sell,date,stock,qty,price){
     fs.writeFileSync('./my_stocks/holding.json',JSON.stringify(rd,null,2));
 }
 
-var currentSession;
+app.get("/register", function(request,response){
+    var error=request.session.error;
+    delete request.session.error;
+    response.render("register",{
+        err:error
+    });
+});
+
+app.post("/register", async function(request,response){
+    users=JSON.parse(fs.readFileSync('./users.json'))
+    var userid=request.body.userid;
+    var password=request.body.password;
+
+    if(users.hasOwnProperty(userid)){
+        request.session.error=`${userid} is already being used.`;
+        response.redirect("/register");
+    }
+    else{
+        var hashedPassword=await bcrypt.hash(password,10);
+        users[userid]={userid:userid,password:hashedPassword};
+        var dir='./userdb/'+userid+'/'
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
+        fs.writeFileSync('./users.json',JSON.stringify(users,null,2));
+        fs.writeFileSync('./userdb/'+userid+'/holding.json',"{}");
+        response.redirect("/");
+    }
+});
+
 app.get('/',function(request,response){
-    currentSession=request.session;
-    console.log(currentSession);
-    response.render("home");
+    var error=request.session.error;
+    delete request.session.error;
+    response.render("login",{
+        err:error
+    });
+});
+
+app.post('/',async function(request,response){
+    users=JSON.parse(fs.readFileSync('./users.json'));
+    var userid=request.body.userid;
+    var password=request.body.password;
+
+    if(!users.hasOwnProperty(userid)){
+        request.session.error="No such userid."
+        response.redirect("/")
+    }
+    else{
+        if(await bcrypt.compare(password,users[userid].password)){
+            request.session.isAuth=true;
+            request.session.key=userid;
+            response.redirect("/portfolio");
+        }
+        else{
+            request.session.error="Login Credentials are Wrong.!!";
+            response.redirect("/");
+        }
+    }
 });
 
 app.get('/favicon.ico',function(request,response){
     response.sendStatus(204);
 });
 
-app.get('/portfolio',function(request,response){
+app.get('/portfolio',isAuth,function(request,response){
+    console.log(request.session);
     var holding=[];
     var totalInvested=0,currentValue=0;
     var holdingDetail=JSON.parse(fs.readFileSync("./my_stocks/holding.json")).stocksTraded;
