@@ -3,24 +3,78 @@ body{
     background-color: rgba(242, 237, 208, 0.8);
     margin: 0px auto;
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    grid-column-gap:2%;
+    grid-template-columns: repeat(1, 1fr);
     grid-template-rows: repeat(30, 1fr);
+    transition-property: all;
+    transition-duration: 1s;
+    transition-timing-function: ease-in;
+}
+
+.navbar{
+    grid-column: 1/-1;
+    grid-row: 1/2;
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    grid-template-rows: repeat(1,1fr);
+    background-color: cornflowerblue;
+}
+
+.home{
+    grid-column: 3/4;
+}
+
+.portfolio{
+    grid-column: 4/5;
+}
+
+.logout{
+    grid-column: -1;
+}
+
+.labelAndDetail{
+    margin-left: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    grid-column: 1 / 8;
+    grid-row: 3 / 4;
+    display: none;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    background-color: lightsteelblue;
+}
+
+.stockdesc{
+    grid-column: 1/6;
+    grid-row: 1/-1;
+}
+
+.gg-arrow-left-o{
+    margin-top: 40%;
+    margin-left: 30%;
+}
+
+.back{
+    grid-column: -2/-1;
+    grid-row: 1/-1;
+    text-align: center;
 }
 
 .chart_container{
+    display: none;
     margin-left: 5px;
     position:  relative;
     grid-column: 1 / 8;
-    grid-row: 3 / 10;
-    display: grid;
+    grid-row: 4 / 10;
     grid-template-columns: repeat(12, 1fr);
     grid-template-rows: repeat(20, 1fr);
 }
 
 .lateruse{
-    grid-column: 8/ -1;
+    grid-column: 1/ -1;
     grid-row: 3 / 18;
+    transition-property: all;
+    transition-duration: 1s;
+    transition-timing-function: ease-in;
 }
 
 .stock_chartnprice{
@@ -88,6 +142,7 @@ body{
     grid-column: 1/-2;
     grid-row: -2/-1;
     cursor: ew-resize;
+    border-bottom-left-radius: 5px;
     border-top: 1px solid rgba( 113, 95, 117, 0.5);
 }
 
@@ -155,6 +210,7 @@ body{
     grid-column: -2/-1;
     grid-row: -2/-1;
     background-color: rgba(36, 0, 54,1);
+    border-bottom-right-radius: 5px;
 }
 
 #can{
@@ -181,29 +237,60 @@ body{
     grid-column-gap:2%;
     background-color: aliceblue;
     height: 50px;
+    transition: width 1s ease-in;
 }
 
 .stock_name{
     padding-top: 15px;
-    margin-left: 3px;
+    padding-left: 3px;
+    grid-column: 1/4;
     grid-row:1;
-    grid-column: 1/6;
 }
 
 .stock_quantity{
     padding-top: 15px;
-    margin-left: 3px;
+    padding-left: 3px;
     grid-row: 1;
-    grid-column: 7/8;
-    text-align: end;
+    grid-column: 4/5;
+    text-align: left;
 }
 
 .avg_price{
     padding-top: 15px;
     padding-right: 3px;
     grid-row: 1;
-    grid-column: 8/-1;
+    grid-column: 5/6;
     text-align: end;
+}
+
+.LTP{
+    padding-top: 15px;
+    padding-left: 3px;
+    grid-column: 6/8;
+    text-align: center;
+}
+
+.profitloss{
+    padding-top: 15px;
+    padding-left: 3px;
+    grid-column: 8/10;
+    text-align: center;
+}
+
+.change{
+    padding-top: 15px;
+    padding-left: 3px;
+    grid-column: 10/11;
+}
+
+.profit{
+    color: green;
+}
+.loss{
+    color: red;
+}
+.nochange{
+    color: grey;
 }
 
 .selected{
