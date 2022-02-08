@@ -4,7 +4,6 @@ const bcrypt = require("bcryptjs")
 const path=require('path')
 
 const fs=require('fs')
-const res = require('express/lib/response')
 const { response } = require('express')
 
 const app=express()
@@ -39,7 +38,7 @@ function createUserID(){
 
 const isAuth = (request,response,next)=>{
     if(request.session.isAuth){
-        request.session.success="SUCCESSFUL";
+        request.session.PATH="./userdb/"+request.session.key+"/";
         next();
     }
     else{
@@ -86,11 +85,12 @@ function check_stock_already_exists(arr,stock){
     return -1;
 }
 
-creatingPortfolioReturnJSON();
-function creatingPortfolioReturnJSON(){
-    var holding=JSON.parse(fs.readFileSync("./my_stocks/holding.json"));
+
+function creatingPortfolioReturnJSON(PATH){
+    var holding=JSON.parse(fs.readFileSync(PATH+"holding.json"));
     var stocksTraded=holding.stocksTraded;
     var portfolioPerformance={timestamp:[],LTP:[],investment_done:[],percentChange:[]};
+    if(JSON.stringify(holding) == '{}')return;
     for(i=0;i<holding.daysTraded.length;i++){
         var timestamp=holding.daysTraded[i];//days traded on
         for(stock in stocksTraded){
@@ -134,7 +134,7 @@ function creatingPortfolioReturnJSON(){
         temp=portfolioPerformance.investment_done[each];
     }
     portfolioPerformance.percentChange.push(portfolioPerformance.LTP[portfolioPerformance.LTP.length - 1]/portfolioPerformance.investment_done[portfolioPerformance.investment_done.length -1])
-    fs.writeFileSync('./my_stocks/portfolioPerformance.json',JSON.stringify(portfolioPerformance,null,2));
+    fs.writeFileSync(PATH+'portfolioPerformance.json',JSON.stringify(portfolioPerformance,null,2));
 }
 
 /* operation(1,'2021-07-30',"INFY",5,1615.75);
@@ -283,33 +283,47 @@ app.get('/portfolio',isAuth,function(request,response){
     console.log(request.session);
     var holding=[];
     var totalInvested=0,currentValue=0;
-    var holdingDetail=JSON.parse(fs.readFileSync("./my_stocks/holding.json")).stocksTraded;
+    var holdingDetail=JSON.parse(fs.readFileSync(request.session.PATH+"holding.json")).stocksTraded;
     for(each in holdingDetail){
         var stockdetail=JSON.parse(fs.readFileSync("./nse_stocks/"+each+".json"));
+        var CLASS;
         var p_n_l=(stockdetail.close[0].toFixed(2)-holdingDetail[each].averagePrice.toFixed(2))
         *holdingDetail[each].shares;
         totalInvested+=holdingDetail[each].averagePrice.toFixed(2)*holdingDetail[each].shares;
         currentValue+=stockdetail.close[0].toFixed(2)*holdingDetail[each].shares;
+        if(p_n_l>0){
+            CLASS="profit";
+        }
+        else if(p_n_l<0){
+            CLASS="loss";
+        }
+        else{
+            CLASS="nochange";
+        }
         holding.push({stock_name:each,
             stock_desc:stockdetail.stock_desc,
             shares: holdingDetail[each].shares,
             averagePrice: holdingDetail[each].averagePrice.toFixed(2),
             lastTradedPrice: stockdetail.close[0].toFixed(2),
             profit_loss:p_n_l.toFixed(2),
-            historic:JSON.stringify({
-                x:stockdetail.timestamp,
-                o:stockdetail.open,
-                h:stockdetail.high,
-                l:stockdetail.low,
-                c:stockdetail.close
-            })
+            percentChange:(((stockdetail.close[0]/holdingDetail[each].averagePrice)-1)*100).toFixed(2),
+            class:CLASS,
+            historic:"./nse_stocks/"+each+".json"
         });
     }
+    creatingPortfolioReturnJSON(request.session.PATH);
     //console.log(totalInvested,currentValue,currentValue-totalInvested,currentValue/totalInvested);
     response.render("index",{
         selected_stock:holding[0],
         all:holding
     });
+});
+
+app.get('/logout',function(request,response){
+    request.session.destroy((err) => {
+        if (err) throw err;
+        response.redirect("/");
+      });
 });
 
 app.listen(port,function(){
