@@ -1,4 +1,3 @@
-console.log("in js");
 var chartXY= document.getElementById('main_chart');
 var layer1= document.getElementById('for_crossHair');
 var chart= document.getElementById('main_chart').getContext('2d');
@@ -28,7 +27,6 @@ var end;
 
 var startX,startY,drag=false;
 function resize(){
-	console.log();
 	end=29;
 	var fontsize;
 	if(screen.width<500 || window.innerWidth<500){
@@ -69,7 +67,6 @@ function resize(){
 	x_ctx.fillStyle = "rgb(229, 222, 245)";
 }
 window.addEventListener('resize',function(){
-	console.log('resize');
 	resize();
 	setting_up();
 	update_chart(end);
@@ -77,7 +74,6 @@ window.addEventListener('resize',function(){
 });
 
 window.addEventListener('load',function(){
-	console.log('loading...');
 	resize();
 	setting_up();
 });
@@ -87,7 +83,6 @@ var data_max=[];
 
 chartit(curr_stock);
 function setting_up(){
-	console.log('setting axis');
 	y_ctx.clearRect(0,0,price_axis.width,price_axis.height);
 	
 	const {ctx,chartArea,scales:{x,y}}=myChart;
@@ -110,9 +105,9 @@ function setting_up(){
 }
 
 async function chartit(stock){
-	//console.log(curr_stock==stock);
 	await fetchMaxData(stock);
 	await fetchData(0,end);
+	
 	var data ={
 		datasets:[{
 			data:each_data,
@@ -179,7 +174,6 @@ async function chartit(stock){
 	}
 	else{
 		myChart.destroy();
-		console.log('destroyed');
 		myChart = new Chart(chart, {
 			type: 'candlestick',
 			options: options,
@@ -194,15 +188,19 @@ async function chartit(stock){
 	return myChart;
 }
 
-async function fetchMaxData(stock_data){
-	console.log(typeof stock_data)
+async function fetchMaxData(historic){
 	data_max=[];
-	if(typeof stock_data=="string"){
-		console.log("inhere");
-		const obj=JSON.parse(stock_data);
-		console.log(obj);
-		for(i=0;i<obj.x.length;i++){
-			data_max.push({x:obj.x[i],o:obj.o[i],h:obj.h[i],l:obj.l[i],c:obj.c[i]});
+	if(typeof historic=="string"){
+		const data=await fetch(historic);
+		const jsondata= await data.json();
+		for(i=0;i<jsondata.timestamp.length;i++){
+			data_max.push({
+				x:jsondata.timestamp[i],
+				o:jsondata.open[i],
+				h:jsondata.high[i],
+				l:jsondata.low[i],
+				c:jsondata.close[i]
+			});
 		}
 	}
 	return data_max;
@@ -220,7 +218,6 @@ async function fetchData(start,end){
 		each_data_max=Math.max(each_data_max,each.o,each.h,each.l,each.c);
 		each_data_min=Math.min(each_data_min,each.o,each.h,each.l,each.c);
 	}
-	console.log("data fetched!");
 	return each_data;
 }
 
@@ -417,7 +414,6 @@ function drawCross(){
 }
 
 layer1.addEventListener('mouseenter',function(){
-	console.log(anim);
 	anim=true;
 });
 
@@ -451,15 +447,37 @@ function chart_drag(diffY,diffX){
 	setting_up();
 }
 var eachstock=document.getElementsByClassName('each_stock');
+var label=document.getElementsByClassName('labelAndDetail')[0];
+var body=document.getElementsByTagName('body')[0];
+var lt=document.getElementsByClassName('lateruse')[0];
 function disp(obj,stock_name,stock_desc){
-	console.log(stock_name,stock_desc);
-	var lt = document.getElementsByClassName('lateruse')[0];
-	var slabel=document.getElementsByClassName('stock_label')[0];
-	console.log(slabel.innerHTML=stock_name);
+
+	var stockdesc=document.getElementsByClassName("stockdesc")[0];
+
+	body.style.gridTemplateColumns="repeat(10,1fr)";
+	body.style.gridColumnGap="2%";
+	lt.style.gridColumn="8/-1";
+
+	crt_contain.style.display="grid";
+	label.style.display="grid";	
+
+	stockdesc.innerHTML=stock_name;
+	console.log(obj,stock_name,stock_desc);
 	for(let i=0;i<lt.children.length;i++){
 		lt.children[i].classList.remove('selected');
 		if(obj==lt.children[i]){
 			lt.children[i].classList.add('selected');
 		}
+	}
+}
+
+function revert(){
+	crt_contain.style.display="none";
+	label.style.display="none";
+	body.style.gridTemplateColumns="repeat(1,1fr)";
+	body.style.gridColumnGap="0%";
+	lt.style.gridColumn="1/-1";
+	for(let i=0;i<lt.children.length;i++){
+		lt.children[i].classList.remove('selected');
 	}
 }
