@@ -11,11 +11,19 @@
 		<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@^1"></script>
 		<script src="./chart-widget/chartjs-chart-finanacials.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
-		
+		<link href='https://css.gg/arrow-left-o.css' rel='stylesheet'>
 	</head>
 	<body>
+		<div class="navbar" id="navbar">
+			<div class="home" id="home">HOME</div>
+			<div class="portfolio current" id="portfolio">PORTFOLIO</div>
+			<div class="logout" id="logout" onclick="location.href='/logout'">LOGOUT</div>
+		</div>
+		<div class="labelAndDetail">
+			<div class="stockdesc"></div>
+			<i class="back gg-arrow-left-o" onclick="revert()"></i>
+		</div>
 		<div class="chart_container" id="crt_contain">
-			<div class="stock_label">{{selected_stock.stock_name}}</div>
 			<div class="stock_graph" id="can_con">
 				<div class="chart_wrapper" id="chart_wrapper">
 					<canvas id="main_chart"></canvas>
@@ -48,10 +56,13 @@
 		</div>
 		<div class="lateruse">
             {{#each all}}
-            <div class="each_stock {{this.class}}"  onclick="chartit('{{this.historic}}');disp(this,'{{this.stock_name}}','{{this.stock_desc}}');">
+            <div class="each_stock" onclick="chartit('{{this.historic}}');disp(this,'{{this.stock_name}}','{{this.stock_desc}}');">
 				<div class="stock_name">{{this.stock_name}}</div>
 				<div class="stock_quantity">{{this.shares}}</div>
 				<div class="avg_price">{{this.averagePrice}}</div>
+				<div class="LTP">{{this.lastTradedPrice}}</div>
+				<div class="profitloss {{this.class}}">{{this.profit_loss}}</div>
+				<div class="change">{{this.percentChange}}</div>
 			</div>
             {{/each}}
         </div>
