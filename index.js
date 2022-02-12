@@ -5,6 +5,7 @@ const path=require('path')
 
 const fs=require('fs')
 const { response } = require('express')
+const res = require('express/lib/response')
 
 const app=express()
 const port=3000
@@ -308,6 +309,7 @@ app.get('/portfolio',isAuth,function(request,response){
             profit_loss:p_n_l.toFixed(2),
             percentChange:(((stockdetail.close[0]/holdingDetail[each].averagePrice)-1)*100).toFixed(2),
             class:CLASS,
+            dayChange:((stockdetail.close[0]/stockdetail.close[1]-1)*100).toFixed(2),
             historic:"./nse_stocks/"+each+".json"
         });
     }
@@ -324,6 +326,35 @@ app.get('/logout',function(request,response){
         if (err) throw err;
         response.redirect("/");
       });
+});
+
+app.post('/portfolio/:name',function(request,response){
+    var file="./userdb/"+request.session.key+"/holding.json";
+    var stock=request.params.name;
+    var data=JSON.parse(fs.readFileSync(file));
+    var result={};
+    for(let i=0;i<data.daysTraded.length;i++){
+        var date=data.daysTraded[i];
+        var index=check_stock_already_exists(data[date].buy,stock);
+        if(index!=-1){
+            var temp=data[date].buy[index];
+            temp.STATUS="buy";
+            result[date]=temp;
+        }
+        index=check_stock_already_exists(data[date].sell,stock);
+        if(index!=-1){
+            var temp=data[date].sell[index];
+            temp.STATUS="sell";
+            result[date]=temp;
+        }
+    }
+    response.json(result);
+});
+
+app.get('/portfolio/:name',function(request,response){
+    response.render("index",{
+        moreDetail:request.session.moreDetail
+    });
 });
 
 app.listen(port,function(){
