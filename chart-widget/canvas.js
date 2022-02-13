@@ -463,15 +463,14 @@ function disp(obj,stock_name,stock_desc){
 
 	var stockdesc=document.getElementsByClassName("stockdesc")[0];
 
-	body.style.gridTemplateColumns="repeat(10,1fr)";
-	body.style.gridColumnGap="2%";
-	lt.style.gridColumn="8/-1";
+	body.style.gridTemplateColumns="repeat(15,1fr)";
+	body.style.gridColumnGap="1%";
+	lt.style.gridColumn="10/-1";
 
 	crt_contain.style.display="grid";
 	label.style.display="grid";	
 
 	stockdesc.innerHTML=stock_name;
-	console.log(obj,stock_name,stock_desc);
 	for(let i=0;i<lt.children.length;i++){
 		lt.children[i].classList.remove('selected');
 		if(obj==lt.children[i]){
@@ -479,6 +478,7 @@ function disp(obj,stock_name,stock_desc){
 		}
 	}
 	for(let i=0;i<col1.length;i++){
+		col1[i].style.gridColumn="1/5";
 		col2[i].style.display="none";
 		col3[i].style.display="none";
 		col6[i].style.display="none";
@@ -503,6 +503,7 @@ function revert(){
 	lt.style.gridColumn="1/-1";
 	
 	for(let i=0;i<col1.length;i++){
+		col1[i].style.gridColumn="1/3";
 		col2[i].style.display="grid";
 		col3[i].style.display="block";
 		col6[i].style.display="block";
@@ -515,7 +516,7 @@ function revert(){
 	}
 }
 var stocks=document.getElementsByClassName("stock");
-async function moredetail(obj,stock){
+async function moreDetail(obj,stock){
 	var data=await fetch("/portfolio/"+stock,{
 		method:"POST",
 	}).then(response => response.json())
@@ -524,51 +525,94 @@ async function moredetail(obj,stock){
 	var stock=row.getElementsByClassName('each_stock')[0];
 	var info=row.getElementsByClassName('info')[0];
 	var count=0;
-	for(each in data){
-		count=count+data[each].holdings.length;
-	}
-
-	info.style.display="grid";
-	info.style.gridTemplateRows="repeat("+(count+1)+",1fr)";
-	info.style.gridTemplateColumns="repeat(1,1fr)";
-	var row=2;
-	info.innerHTML="";
-	for(each in data){
-		for(let i=0;i<data[each].holdings.length;i++){
-			var div = document.createElement('div');
-    		div.className = 'eachDetail';
-			div.style.gridRow= row/(row+1)	;
-			var date,price,share;
-			date=document.createElement('div');
-			date.className='eachDetail_date';
-			date.innerHTML=each;
-			price=document.createElement('div');
-			price.className='eachDetail_price';
-			price.innerHTML=data[each].price;
-			share=document.createElement('div');
-			share.className='eachDetail_share';
-			share.innerHTML=data[each].shares;
-			div.appendChild(date);
-			div.appendChild(price);
-			div.appendChild(share);
-			row=row+2;
-			info.appendChild(div);
-		}
-	}
-
-	if(info.clientHeight==0){
-		info.style.height=stock.clientHeight*0.90*count;
-		info.style.display="grid";
-	}
-	else{
-		info.style.height="0px";
-		info.style.display="none";
-	}
 
 	for(let i=0;i<stocks.length;i++){
 		var each=stocks[i].getElementsByClassName('info')[0];
 		if(info!=each){
 			each.style.height="0px";
+			each.style.display="none";
 		}
+	}
+
+	for(each in data){
+		count=count+data[each].holdings.length;
+	}
+
+	if(info.clientHeight==0){
+		info.style.height=stock.clientHeight*0.90*(count+1);
+		info.style.display="grid";
+		info.style.gridTemplateRows="repeat("+(count+2)+",1fr)";
+		info.style.gridTemplateColumns="repeat(1,1fr)";
+		info.innerHTML="";
+
+		var div = document.createElement('div');
+    	div.className = 'eachDetailHeader';
+		
+		date=document.createElement('div');
+		date.className='eachDetail_date';
+		date.innerHTML="Date";
+		share=document.createElement('div');
+		share.className='eachDetail_share';
+		share.innerHTML="Shares";
+		price=document.createElement('div');
+		price.className='eachDetail_price';
+		price.innerHTML="Price";
+		amt=document.createElement('div');
+		amt.className='eachDetail_amt';
+		amt.innerHTML="Amt Invested";
+		div.appendChild(date);
+		div.appendChild(price);
+		div.appendChild(share);
+		div.appendChild(amt);
+		info.appendChild(div);
+		
+		var invested=0;
+		for(each in data){
+			for(let i=0;i<data[each].holdings.length;i++){
+
+				var div = document.createElement('div');
+    			div.className = 'eachDetail';
+				
+				
+				date=document.createElement('div');
+				date.className='eachDetail_date';
+				var tempDate = new Date(+each);
+				date.innerHTML=tempDate.getDate()+
+				", "+(tempDate.toLocaleString('en-us', { month: 'short' }))+
+				" "+tempDate.getFullYear();
+				share=document.createElement('div');
+				share.className='eachDetail_share';
+				share.innerHTML=data[each].holdings[i].shares;
+				price=document.createElement('div');
+				price.className='eachDetail_price';
+				price.innerHTML=data[each].holdings[i].price;
+				amt=document.createElement('div');
+				amt.className='eachDetail_amt';
+				amt.innerHTML=data[each].holdings[i].price*data[each].holdings[i].shares;
+				invested+=data[each].holdings[i].price*data[each].holdings[i].shares;
+
+				div.appendChild(date);
+				div.appendChild(price);
+				div.appendChild(share);
+				div.appendChild(amt);
+				info.appendChild(div);
+			}
+		}
+
+		var div = document.createElement('div');
+    	div.className = 'sumTotal';
+		total=document.createElement('div');
+		total.className='total';
+		total.innerHTML="Total Investment";
+		totalamt=document.createElement('div');
+		totalamt.className='eachDetail_amt';
+		totalamt.innerHTML=invested;
+		div.appendChild(total);
+		div.appendChild(totalamt);
+		info.appendChild(div);
+	}
+	else{
+		info.style.height="0px";
+		info.style.display="none";
 	}
 }
