@@ -351,7 +351,7 @@ app.post('/portfolio/:name',function(request,response){
     response.json(result);
 });
 
-app.get('/portfolio/:name',function(request,response){
+app.get('/portfolio/:name',isAuth,function(request,response){
     response.render("index",{
         moreDetail:request.session.moreDetail
     });
