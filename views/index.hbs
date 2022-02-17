@@ -3,7 +3,6 @@
 		<link href="/css/style.css" rel="stylesheet">
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Bitter:wght@300&display=swap" rel="stylesheet">
 		<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
 		<script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
 		<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -17,13 +16,15 @@
 	</head>
 	<body>
 		<div class="navbar" id="navbar">
-			<div class="home" id="home">HOME</div>
-			<div class="portfolio current" id="portfolio">PORTFOLIO</div>
+			<div class="home" onclick="location.href='/home'" id="home">HOME</div>
+			<div class="portfolio current" id="portfolio" onclick="location.href='/portfolio'">PORTFOLIO</div>
 			<div class="logout" id="logout" onclick="location.href='/logout'">LOGOUT</div>
 		</div>
 		<div class="labelAndDetail">
 			<div class="stockdesc"></div>
 			<i class="back gg-arrow-left-o" onclick="revert()"></i>
+			<div class="buy">BUY</div>
+			<div class="sell">SELL</div>
 		</div>
 		<div class="chart_container" id="crt_contain">
 			<div class="stock_graph" id="can_con">
@@ -31,7 +32,7 @@
 					<canvas id="main_chart"></canvas>
 					<canvas id="for_crossHair"></canvas>
 				</div>
-				<div class="here" onclick="increment()">&nbsp+&nbsp</div>
+				<div class="inc" onclick="increment()">&nbsp+&nbsp</div>
 				</div>
 				<div class="axis y_axis" id="y_axis">
 					<div class="price_bar" id="price_bar_id">
