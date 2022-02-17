@@ -23,7 +23,8 @@ var nil=document.getElementById('nil');
 var myChart;
 var curr_stock;
 var end;
-
+var inHomePage=false;
+var home=document.getElementById('home');
 
 var startX,startY,drag=false;
 function resize(){
@@ -43,12 +44,18 @@ function resize(){
 	y_axis.style.width=crt_contain.clientWidth/12;
 	x_axis_full.style.height=crt_contain.clientHeight/20;
 
-	chart_wrapper.style.width=can_con.clientWidth;
+	chart_wrapper.style.width=can_con.clientWidth-5;
 	chart_wrapper.style.height=can_con.clientHeight;
 	chart.height=chart_wrapper.clientHeight;
 	chart.width=chart_wrapper.clientWidth;
 	layer1.height=chart_wrapper.clientHeight;
 	layer1.width=chart_wrapper.clientWidth;
+	if(inHomePage){
+		layer2.height=chart_wrapper.clientHeight;
+		layer2.width=chart_wrapper.clientWidth;
+		layer3.height=chart_wrapper.clientHeight;
+		layer3.width=chart_wrapper.clientWidth;
+	}
 
 	price_axis.width= y_bar.clientWidth;
 	price_axis.height= y_bar.clientHeight;
@@ -68,24 +75,44 @@ function resize(){
 }
 window.addEventListener('resize',function(){
 	resize();
-	setting_up();
+	if(home.classList.length==2){
+		inHomePage=true;
+		in_homepage();
+	}
+	else{
+		inHomePage=false;
+	}
+	setting_up(myChart);
 	update_chart(end);
 	y_drag(0,0);
 });
-
+var layer2;var timeline;
+var layer3,timeline_highlight;
 window.addEventListener('load',function(){
 	resize();
-	setting_up();
+	setting_up(myChart);
+	if(home.classList.length==2){
+		inHomePage=true;
+		layer2 = document.getElementById('for_timeline');
+		timeline= document.getElementById('for_timeline').getContext('2d');
+		layer3 = document.getElementById('for_timeline_highlight');
+		timeline_highlight= document.getElementById('for_timeline_highlight').getContext('2d');
+		in_homepage();
+	}
+	else{
+		inHomePage=false;
+	}
 });
 
 var each_data=[]
 var data_max=[];
 
 chartit(curr_stock);
-function setting_up(){
+function setting_up(Chart){
 	y_ctx.clearRect(0,0,price_axis.width,price_axis.height);
 	
-	const {ctx,chartArea,scales:{x,y}}=myChart;
+	const {ctx,chartArea,scales:{x,y}}=Chart;
+	
 	for(var i=1;i<y.ticks.length-1;i++){
 		const each=y.ticks[i];
 		
@@ -103,6 +130,8 @@ function setting_up(){
 		x_ctx.fillText(each.label,temp_x,15);
 	}
 }
+
+
 
 async function chartit(stock){
 	await fetchMaxData(stock);
@@ -184,13 +213,14 @@ async function chartit(stock){
 		myChart.config.options.scales.y.min=myChart.scales.y.min;
 	}
 	resize();
-	setting_up();
+	setting_up(myChart);
 	return myChart;
 }
 
 async function fetchMaxData(historic){
 	data_max=[];
 	if(typeof historic=="string"){
+		//console.log(historic);
 		const data=await fetch(historic);
 		const jsondata= await data.json();
 		for(i=0;i<jsondata.timestamp.length;i++){
@@ -222,42 +252,50 @@ async function fetchData(start,end){
 }
 
 async function increment(){
-		end=myChart.data.datasets[0].data.length;
-		var start=data_max.indexOf(each_data[0]);
-		myChart.data.datasets[0].data=await fetchData(start,end=end+10);
-		
-		myChart.config.options.scales.y.max=each_data_max*1.05;
-		myChart.config.options.scales.y.min=each_data_min*0.95;
+		if(!inHomePage){
+			end=myChart.data.datasets[0].data.length;
+			var start=data_max.indexOf(each_data[0]);
+			myChart.data.datasets[0].data=await fetchData(start,end=end+10);
+			
+			myChart.config.options.scales.y.max=each_data_max*1.05;
+			myChart.config.options.scales.y.min=each_data_min*0.95;
 
-		myChart.update('active');
-		setting_up();
+			myChart.update('active');
+			setting_up(myChart);
+		}
 }
 
 async function update_chart(limit){
 	myChart.data.datasets[0].data=await fetchData(0,end=limit);
 	myChart.update('active');
-	setting_up();
+	setting_up(myChart);
 }
 
 y_axis_layer.addEventListener('mousedown',function(event){
-	startY=event.layerY;
-	drag=true;
+	if(!inHomePage){
+		startY=event.layerY;
+		drag=true;
+	}
 });
 
 y_axis_layer.addEventListener('mouseup',function(event){
-	startY=event.layerY;
-	drag=false;
+	if(!inHomePage){
+		startY=event.layerY;
+		drag=false;
+	}
 });
 y_axis_layer.addEventListener('mousemove',function(event){
-	if(drag){
-		diff=event.layerY-startY;
-		if(diff>1){
-			y_drag(diff,-diff);
+	if(!inHomePage){
+		if(drag){
+			diff=event.layerY-startY;
+			if(diff>1){
+				y_drag(diff,-diff);
+			}
+			else if(diff<-1){
+				y_drag(diff,-diff)
+			}
+			startY=event.layerY;
 		}
-		else if(diff<-1){
-			y_drag(diff,-diff)
-		}
-		startY=event.layerY;
 	}
 });
 y_axis_layer.addEventListener('mouseleave',function(event){
@@ -268,23 +306,29 @@ function y_drag(dx,dy){
 	myChart.config.options.scales.y.max+=(dx*0.0015*myChart.config.options.scales.y.max);
 	myChart.config.options.scales.y.min+=(dy*0.0015*myChart.config.options.scales.y.min);
 	myChart.update('active');
-	setting_up();
+	setting_up(myChart);
 }
 
 x_axis_layer.addEventListener('mousedown',function(event){
-	startX=event.layerX;
-	drag=true;
+	if(!inHomePage){
+		startX=event.layerX;
+		drag=true;
+	}
 });
 
 x_axis_layer.addEventListener('mouseup',function(event){
-	startX=event.layerX;
-	drag=false;
+	if(!inHomePage){	
+		startX=event.layerX;
+		drag=false;
+	}
 });
 x_axis_layer.addEventListener('mousemove',function(event){
-	if(drag){
-		diff=event.layerX-startX;
-		x_drag(diff);
-		startX=event.layerX;
+	if(!inHomePage){	
+		if(drag){
+			diff=event.layerX-startX;
+			x_drag(diff);
+			startX=event.layerX;
+		}
 	}
 });
 x_axis_layer.addEventListener('mouseleave',function(event){
@@ -304,7 +348,7 @@ async function x_drag(dx){
 		myChart.config.options.scales.y.min=each_data_min*0.95;
 		myChart.data.datasets[0].data.push(data_max[limit+1]);
 		myChart.update();
-		setting_up();
+		setting_up(myChart);
 	}
 	else if(dx<0){
 		if(each_data.length>2){
@@ -312,7 +356,7 @@ async function x_drag(dx){
 				myChart.data.datasets[0].data.pop();
 			}
 			myChart.update();
-			setting_up();
+			setting_up(myChart);
 		}
 	}
 }
@@ -327,24 +371,30 @@ var cross={
 }
 
 layer1.addEventListener('mousedown',function(event){
-	startY=event.layerY;
-	drag=true;
+	if(!inHomePage){	
+		startY=event.layerY;
+		drag=true;
+	}
 });
 
 layer1.addEventListener('mouseup',function(event){
-	startY=event.layerY;
-	drag=false;
+	if(!inHomePage){	
+		startY=event.layerY;
+		drag=false;
+	}
 });
 var animID,anim=false;
 ;
 
 layer1.addEventListener('mousemove',function(event){
-	if(drag){
-		var diffY=event.layerY-startY;
-		var diffX=event.layerX-startX;
-		chart_drag(diffY,diffX);	
-		startY=event.layerY;
-		startX=event.layerX;
+	if(!inHomePage){	
+		if(drag){
+			var diffY=event.layerY-startY;
+			var diffX=event.layerX-startX;
+			chart_drag(diffY,diffX);	
+			startY=event.layerY;
+			startX=event.layerX;
+		}
 	}
 });
 
@@ -401,6 +451,9 @@ function drawCross(){
 	x_axis_highlight.font = "bold 12px'Bitter', serif";
 	x_axis_highlight.fillStyle = "rgb(229, 22, 245)";
 	var x_label=new Date(myChart.scales.x.getValueForPixel(cross.X)).toLocaleDateString();
+	if(inHomePage==true){
+		x_label=timestamp[myChart.scales.x.getValueForPixel(cross.X)];
+	}
 	x_axis_highlight.fillText(x_label,cross.X,15);
 
 	crosshair.beginPath();
@@ -410,6 +463,83 @@ function drawCross(){
 	crosshair.strokeStyle="rgb(218, 220, 227)";
 	crosshair.stroke();
 
+	if(inHomePage){
+		timeline_highlight.clearRect(0,0,layer1.clientWidth,layer1.clientHeight);
+		const{ctx, chartArea,scales:{x,y}}=myChart;
+		var chart_h=chartArea.height;
+		var level=chart_h/20;
+		var date=performanceData.timestamp.length - x.getValueForPixel(cross.X)-1;
+		var price=y.getPixelForValue(percentChange[x.getValueForPixel(cross.X)]);
+		var ts=performanceData.timestamp;
+		if(true){
+			var flag_rl=100;
+			var cpx=10;
+			var inflag=0;
+			var h=100;
+			if(chartArea.width - cross.X < 105){
+				flag_rl=-100;
+				cpx=-10;
+				inflag=-110;
+			}
+			if(price<100){
+				price+=100;
+			}
+
+			timeline_highlight.shadowColor='black';
+			timeline_highlight.shadowBlur=2;
+			timeline_highlight.shadowOffsetX=2;
+			timeline_highlight.shadowOffsetY=1;
+
+			timeline_highlight.beginPath();
+			timeline_highlight.setLineDash([]);
+			timeline_highlight.strokeStyle="rgb(218, 220, 227)";
+			timeline_highlight.moveTo(cross.X,price-100);
+			timeline_highlight.lineTo(cross.X+flag_rl,price-100);
+			timeline_highlight.quadraticCurveTo(cross.X+flag_rl+cpx,price-100,cross.X+flag_rl+cpx,price-100+10);
+			timeline_highlight.lineTo(cross.X+flag_rl+cpx,price-100+h);
+			timeline_highlight.quadraticCurveTo(cross.X+flag_rl+cpx,price-100+h+10,cross.X+flag_rl,price-100+h+10);
+			timeline_highlight.lineTo(cross.X,price-100+h+10);
+
+			timeline_highlight.fillStyle="rgba(228, 50, 220,0.5)";
+
+			timeline_highlight.fill();
+
+			timeline_highlight.stroke();
+			var clr="rgba(50,250,100,1)"
+			if(percentChange[x.getValueForPixel(cross.X)]<100){
+				clr="rgba(200, 10, 1,1)";
+			}
+
+			timeline_highlight.shadowBlur=0;
+			timeline_highlight.shadowOffsetX=0;
+			timeline_highlight.shadowOffsetY=0;
+
+			timeline_highlight.font = "12px'Bitter', serif";
+			timeline_highlight.fillStyle = "black";
+			timeline_highlight.fillText("Investment Made.",cross.X+10+inflag,price-100+20,90);
+
+			timeline_highlight.font = "bold 15px'Bitter', serif";
+			timeline_highlight.fillStyle = clr;
+			timeline_highlight.fillText("₹ "+performanceData.investment_done[date].toFixed(2),cross.X+10+inflag,price-100+35,90);
+
+			timeline_highlight.font = "12px'Bitter', serif";
+			timeline_highlight.fillStyle = "black";
+			timeline_highlight.fillText("Current Value.",cross.X+10+inflag,price-100+55,90);
+
+			timeline_highlight.font = "bold 15px'Bitter', serif";
+			timeline_highlight.fillStyle = clr;
+			timeline_highlight.fillText("₹ "+performanceData.LTP[date].toFixed(2),cross.X+10+inflag,price-100+70,90);
+
+			timeline_highlight.font = "12px'Bitter', serif";
+			timeline_highlight.fillStyle = "black";
+			timeline_highlight.fillText("Net Chg.",cross.X+10+inflag,price-100+90,90);
+			
+
+			timeline_highlight.font = "bold 15px'Bitter', serif";
+			timeline_highlight.fillStyle = clr;
+			timeline_highlight.fillText((((performanceData.LTP[date]/performanceData.investment_done[date])-1)*100).toFixed(2)+" %",cross.X+10+inflag,price-100+105,90);
+		}
+	}
 	animID=requestAnimationFrame(drawCross);
 }
 
@@ -444,7 +574,7 @@ function chart_drag(diffY,diffX){
 	myChart.config.options.scales.y.max+=(diffY*0.0015*myChart.config.options.scales.y.max);
 	myChart.config.options.scales.y.min+=(diffY*0.0015*myChart.config.options.scales.y.min);
 	myChart.update('active');
-	setting_up();
+	setting_up(myChart);
 }
 var eachstock=document.getElementsByClassName('each_stock');
 var label=document.getElementsByClassName('labelAndDetail')[0];
@@ -520,6 +650,7 @@ async function moreDetail(obj,stock){
 	var data=await fetch("/portfolio/"+stock,{
 		method:"POST",
 	}).then(response => response.json())
+	console.log(data);
 	
 	var row=obj.parentNode.parentNode.parentNode;
 	var stock=row.getElementsByClassName('each_stock')[0];
@@ -614,5 +745,182 @@ async function moreDetail(obj,stock){
 	else{
 		info.style.height="0px";
 		info.style.display="none";
+	}
+}
+
+function getPortfolioPerformace_data(percentChange){
+	var output=Object.create(percentChange);
+	output=output.reverse();
+	var initial=100;
+	output[0]=output[0]*100;
+	for(let i=1;i<output.length;i++){
+		output[i]=output[i]*output[i-1];
+	}
+	
+	return output;
+}
+
+var timestamp,performanceData;
+var percentChange;
+async function in_homepage(){
+	body.style.gridTemplateColumns="repeat(15,1fr)";
+	body.style.gridColumnGap="1%";
+	crt_contain.style.display="grid";
+	crt_contain.style.gridColumn="1/-1";
+	crt_contain.style.display="grid";
+	label.style.display="grid";	
+	label.style.gridColumn="1/-1";
+	resize();
+	var response=await fetch("/home",{
+		method:"POST",
+	})
+	.catch(err=>console.log(err));
+	
+
+	performanceData=await response.json();
+	if(performanceData.daysTraded.length==0){
+		crt_contain.innerHTML="<div class='temp' style='grid-row:10/11;grid-column:1/-1;text-align:center'>No trades made.</div>";
+
+		return;
+	}
+
+	timestamp=Object.create(performanceData.timestamp);
+	timestamp=timestamp.reverse();
+	timestamp.forEach((Element,Index)=>{
+		if(Element!=null){
+			var date = new Date(Element);
+			timestamp[Index]=date.getDate()+
+			"/"+(date.getMonth()+1)+
+			"/"+date.getFullYear();
+		}
+	});
+
+	percentChange=getPortfolioPerformace_data(performanceData.percentChange);
+
+	var performancedata=[];
+
+	for(let i=0;i<timestamp.length;i++){
+		performancedata.push({x:timestamp[i],y:percentChange[i]});
+	}
+
+
+
+	var options = {
+		onResize: resize(),
+		responsive: true,
+		maintainAspectRatio: false,
+		animation:false,
+		/*onHover:function crosshair(e){
+			console.log(e.x,chart.width);
+			//console.log(new Date(myChart.scales.x.getValueForPixel(e.x)).toLocaleDateString());
+		},*/
+		scales: {
+			y: {
+				grid:{
+					color: 'rgba( 113, 95, 117, 0.5)',
+					lineWidth:0.5,
+					drawBorder:false,
+					display: true,
+				},
+				ticks: {
+					display: false,
+					align: 'center',
+					callback: function(val, index) {
+						  return val;
+					  },
+					},					
+				position: 'right',
+			},
+			x:{
+				display:false,
+				grid:{
+					display: true,
+					color: 'rgba( 113, 95, 117, 0.5)',
+					lineWidth:0.5,
+					drawBorder:false,
+					display: true,
+				},
+				ticks: {
+					display:true,
+					callback: function(val, index,vals) {
+						if(index%10==0){
+							return timestamp[index];
+						}
+					},
+				},
+			}
+		},
+		plugins:{
+			tooltip:{
+				enabled:false,
+			},
+			legend:{
+				display:false,
+			},
+		},
+	};
+
+	var data={
+		datasets: [{
+			type: 'line',
+			data: performancedata,
+			fill: true,
+			fillColor: "green",
+			borderWidth:2,
+			fillColor: 'rgba(180,100,100,0.2)',
+			borderColor: 'rgb(75, 192, 192)',
+			pointRadius: 0
+		}]
+	};
+
+	if(myChart==null){
+		myChart = new Chart(chart, {
+			data: data,
+			options: options
+		});
+	}
+	else{
+		myChart.destroy();
+		myChart = new Chart(chart, {
+			data: data,
+			options: options
+		});
+	}
+	resize();
+	setting_up(myChart);
+	
+	const{ctx, chartArea,scales:{x,y}}=myChart;
+
+	for(let i=0;i<performanceData.daysTraded.length;i++){
+		var date = new Date(performanceData.daysTraded[i]);
+		date=date.getDate()+
+		"/"+(date.getMonth()+1)+
+		"/"+date.getFullYear();
+		
+		var index_x=timestamp.indexOf(date);
+		var index_y=percentChange[index_x];
+		var pixelx=x.getPixelForValue(index_x);
+		var pixely=y.getPixelForValue(index_y);
+		
+		timeline.beginPath();
+		timeline.setLineDash([]);
+		timeline.moveTo(pixelx,0);
+		timeline.lineTo(pixelx,pixely);
+		if(pixelx==0){
+			timeline.lineWidth=2.5
+		}
+		else{
+			timeline.lineWidth=1.5;
+		}
+		timeline.strokeStyle="rgb(75, 192, 192)";
+		timeline.stroke();
+
+		timeline.beginPath();
+		timeline.setLineDash([5,2]);
+		timeline.moveTo(pixelx,pixely);
+		timeline.lineTo(pixelx,chartXY.height);
+		timeline.lineWidth=1.5;
+		timeline.strokeStyle="rgb(75, 250, 177)";
+		timeline.stroke();		
 	}
 }
