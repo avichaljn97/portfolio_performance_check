@@ -1,0 +1,56 @@
+<html>
+	<head>
+		<link href="/css/style.css" rel="stylesheet">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+		<script src="https://cdn.jsdelivr.net/npm/luxon@^2"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@^1"></script>
+		<script src="./chart-widget/chartjs-chart-finanacials.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+		<link href='https://css.gg/arrow-left-o.css' rel='stylesheet'>
+		<link href='https://css.gg/list.css' rel='stylesheet'>
+		<link href='https://css.gg/trending.css' rel='stylesheet'>
+	</head>
+	<body>
+		<div class="navbar" id="navbar">
+			<div class="home current" onclick="location.href='/home'" id="home">HOME</div>
+			<div class="portfolio" id="portfolio" onclick="location.href='/portfolio'">PORTFOLIO</div>
+			<div class="logout" id="logout" onclick="location.href='/logout'">LOGOUT</div>
+		</div>
+		<div class="labelAndDetail">
+			<div class="stockdesc"></div>
+		</div>
+		<div class="chart_container" id="crt_contain">
+			<div class="stock_graph" id="can_con">
+				<div class="chart_wrapper" id="chart_wrapper">
+					<canvas id="main_chart"></canvas>
+					<canvas id="for_crossHair"></canvas>
+                    <canvas id="for_timeline"></canvas>
+					<canvas id="for_timeline_highlight"></canvas>
+				</div>
+				</div>
+				<div class="axis y_axis" id="y_axis">
+					<div class="price_bar" id="price_bar_id">
+						<canvas id="price_bar_canvas"></canvas>
+						<canvas id="price_bar_highlighted_canvas"></canvas>
+					</div>
+				</div>
+				<div class="axis x_axis" id="x_axis">
+					<canvas id="time_bar_canvas"></canvas>
+					<canvas id="time_bar_highlighted_canvas"></canvas>
+				</div>
+				<div class="nil" id='nil'>
+					<div class="nan">
+
+					</div>
+				</div>
+				</div>
+        </div>
+	</body>
+    <script src="./chart-widget/canvas.js">
+	</script>
+</html>
