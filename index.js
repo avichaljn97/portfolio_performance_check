@@ -59,7 +59,8 @@ function creatingNSEjson(){
         var csv_dir="./nse_stocks/"+csv;
         var rd=fs.readFileSync(csv_dir).toString().split('\n').slice(1).reverse();
         for(let i=0;i<rd.length;i++){
-            rd[i]=rd[i].split(',').slice(0,5);
+            if(rd[i]=='')continue;
+            rd[i]=rd[i].split(',');
             if(rd[i][1]=='null'){
                 continue;
             }
@@ -162,10 +163,10 @@ operation(1,'2021-09-27',"TATAPOWER",25,137.25); */
 
 
 
-function operation(buy_sell,date,stock,qty,price){
+function operation(buy_sell,date,stock,qty,price,path){
     var date=Date.parse(date);
     var i;
-    var rd=JSON.parse(fs.readFileSync("./my_stocks/holding.json"));
+    var rd=JSON.parse(fs.readFileSync(path+"/holding.json"));
     if(JSON.stringify(rd)=='{}'){
         rd.daysTraded=[];
         rd.stocksTraded={};
@@ -177,6 +178,7 @@ function operation(buy_sell,date,stock,qty,price){
     else{//if date does not exits
         rd.daysTraded.push(date);
         rd[date]={buy:[],sell:[]};
+        rd.daysTraded.sort(function(a, b){return a - b});
     }
     if(!rd.stocksTraded.hasOwnProperty(stock)){
         rd.stocksTraded[stock]={averagePrice:price,shares:qty};
@@ -219,7 +221,11 @@ function operation(buy_sell,date,stock,qty,price){
         }
         rd.totalInvested-=qty*rd.stocksTraded[stock].averagePrice;
     }
-    fs.writeFileSync('./my_stocks/holding.json',JSON.stringify(rd,null,2));
+
+    if(rd.stocksTraded[stock].shares==0){
+        delete rd.stocksTraded[stock];
+    }
+    fs.writeFileSync(path+'holding.json',JSON.stringify(rd,null,2));
 }
 
 app.get("/register", function(request,response){
@@ -286,9 +292,33 @@ app.get('/favicon.ico',function(request,response){
     response.sendStatus(204);
 });
 
+app.post('/portfolio',isAuth,function(request,response){
+    var req=request.body;
+    var stock=JSON.parse(fs.readFileSync(request.session.path+"holding.json"));
+    if(req.buysell==-1 && !stock.stocksTraded){
+        request.session.status={status_code:3,status:"You dont have any stocks purchased."}
+    }
+    else if(req.buysell==-1 && stock.stocksTraded && !stock.stocksTraded[req.stockname]){
+        request.session.status={status_code:2,status:"You dont have any shares of "+req.stockname+"."}
+    }
+    else if(req.buysell==-1 && stock.stocksTraded[req.stockname].shares<parseInt(req.quantity)){
+        request.session.status={status_code:1,status:"You dont have "+req.quantity+" shares of "+req.stockname+"."}
+    }
+    else{
+        request.session.status={status_code:0,status:"Transaction Successful."}
+        operation(req.buysell,req.date,req.stockname,parseInt(req.quantity),parseInt(req.price),request.session.path)
+    }
+    response.json(request.session.status);
+    response.end();
+});
+
 app.get('/portfolio',isAuth,function(request,response){
-    console.log(request.session);
     var holding=[];
+
+    console.log(request.session);
+    if(request.session.status){
+        delete request.session.status;
+    }
     var totalInvested=0,currentValue=0;
     var holdingDetail=JSON.parse(fs.readFileSync(request.session.path+"holding.json")).stocksTraded;
     for(each in holdingDetail){
@@ -321,7 +351,6 @@ app.get('/portfolio',isAuth,function(request,response){
     }
     //console.log(totalInvested,currentValue,currentValue-totalInvested,currentValue/totalInvested);
     response.render("index",{
-        selected_stock:holding[0],
         all:holding
     });
 });
