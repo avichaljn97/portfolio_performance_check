@@ -15,6 +15,31 @@
 		<link href='https://css.gg/trending.css' rel='stylesheet'>
 	</head>
 	<body>
+		<div class="TransactModalBox">
+			<div class="ModalBox">
+				<div class="header">
+				</div>
+				<form id="field" autocomplete="off" class="field" action="/" method="POST">
+						<label class="stocklabel">Stock Name</label>
+						<input id="myInput" class="myInput" type="text" onclick="initialautocomplete();" name="stockname" placeholder="Stock Name">
+
+						<label class="datelabel">Date</label>
+						<input class="date" type ="date"  name="date" required>
+
+						<label class="qtylabel">Qty</label>
+						<input class="quantity" type ="number"  name="qty" required>
+
+						<label class="pricelabel">Price</label>
+						<input class="price" type="number" name="price" required>
+
+						<div class="footer">
+
+							<div class="button cancel" onclick="cancel()">Cancel</div>
+							<div class="button submit" onclick="transact(this)">Buy</div>
+						</div>
+        		</form>
+			</div>
+		</div>
 		<div class="navbar" id="navbar">
 			<div class="home" onclick="location.href='/home'" id="home">HOME</div>
 			<div class="portfolio current" id="portfolio" onclick="location.href='/portfolio'">PORTFOLIO</div>
@@ -23,8 +48,6 @@
 		<div class="labelAndDetail">
 			<div class="stockdesc"></div>
 			<i class="back gg-arrow-left-o" onclick="revert()"></i>
-			<div class="buy">BUY</div>
-			<div class="sell">SELL</div>
 		</div>
 		<div class="chart_container" id="crt_contain">
 			<div class="stock_graph" id="can_con">
@@ -66,15 +89,20 @@
 				<div class="avg_price">Avg. cost</div>
 				<div class="LTP">LTP</div>
 				<div class="profitloss">P&L</div>
-				<div class="change">Net change</div>
-				<div class="dayChange">Day change</div>
+				<div class="change">Net % Chg</div>
+				<div class="dayChange">Day % Chg</div>
+			</div>
+			<div class="transactMenu">
+				<div class="buy" onclick="display_modalbox(this,1)">BUY</div>
+			    <div class="sell" onclick="display_modalbox(this,-1)">SELL</div>
 			</div>
 			{{#each all}}
 			<div class="stock">
 				<div class="each_stock" onmouseleave="hide_moredetail(this)" onmouseover="display_moredetail(this)" >
-						<div class="stock_name">{{this.stock_name}}
+					<div class="stock_name">
+						<div class="stock_name_col">{{this.stock_name}}</div>
 						<div class="dispchart" onclick="chartit('{{this.historic}}');disp(this,'{{this.stock_name}}','{{this.stock_desc}}');">
-							<i class="gg-trending"></i>
+								<i class="gg-trending"></i>
 						</div>
 					</div>
 					<div class="stock_quantity">
