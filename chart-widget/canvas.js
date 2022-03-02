@@ -949,9 +949,15 @@ function cancel(){
 
 async function transact(obj){
 	var stockname=obj.parentNode.parentNode[0].value;
-	var date=obj.parentNode.parentNode[1].value;
-	var quantity=obj.parentNode.parentNode[2].value;
-	var price=obj.parentNode.parentNode[3].value;
+	var date=obj.parentNode.parentNode[3].value;
+	var quantity=obj.parentNode.parentNode[1].value;
+	var price=obj.parentNode.parentNode[2].value;
+	var output=obj.parentNode.parentNode.parentNode.parentNode;
+	output=output.getElementsByClassName('Transact_output')[0];
+	if(stockname==''||date==''||quantity==''||price==''||!parseInt(quantity)>0||!parseInt(price)>0){
+		displayoutput(output,"block","Not a valid input.", "rgba(50, 89, 121, 0.918)")
+		return;
+	}
 
 	var data={buysell:BuySell,stockname:stockname,date:date,quantity:quantity,price:price};
 	
@@ -964,8 +970,23 @@ async function transact(obj){
 	});
 	const stat=await response.json();
 	if(stat.status_code==0){
-		location.href="/portfolio"
+		displayoutput(output,"block",stat.status_code+": "+stat.status,"rgba(85, 172, 82, 0.705)")
+		setTimeout('location.href="/portfolio"', 2000);
 	}
+	else{
+		displayoutput(output,"block",stat.status_code+": "+stat.status,"rgba(197, 70, 87, 0.847)")
+		setTimeout(function(){
+			output.style.visibility="hidden";
+			output.style.display='none';
+		}, 5000);
+	}
+}
+
+function displayoutput(output,option,msg, colour){
+	output.style.display=option;
+	output.style.visibility="visible";
+	output.innerHTML=msg;
+	output.style.backgroundColor=colour;
 }
 
 
