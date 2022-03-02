@@ -15,7 +15,7 @@ body{
     z-index: 3;
     grid-row: 1/-1;
     grid-column: 1/-1;
-    background-color: rgba(10,10,10,0.5);
+    background-color: rgba(194, 188, 188, 0.7);
 }
 
 .ModalBox{
@@ -28,6 +28,17 @@ body{
     border: 1px red solid;
     display: grid;
     grid-template-rows: repeat(10,1fr);
+}
+
+.Transact_output{
+    display: none;
+    position: absolute;
+    top:15%;
+    left: 5px;
+    width: auto;
+    border-radius: 5px;
+    padding: 10px;
+    transition: visibility 5s ease-in-out;
 }
 
 .field{
@@ -147,6 +158,12 @@ input{
 
 .portfolio{
     grid-column: 4/5;
+    padding-top:40px;
+    text-align: center;
+}
+
+.all_order{
+    grid-column: 5/6;
     padding-top:40px;
     text-align: center;
 }
@@ -567,4 +584,54 @@ input{
 
 .selected{
     border-left: 4px solid rgba(142, 140, 143, 0.5);
+}
+
+.orders{
+    grid-row: 3/-1;
+}
+
+.each_date_trade{
+    width:95%;
+    margin: 10px 2.5%;
+    background-color: rgb(59, 78, 78);
+}
+
+.each_date{
+    margin: 10px 2.5%;
+}
+
+.indata{
+    background-color: rgb(70, 95, 95);
+    width: 100%;
+    height: 15px;
+    padding: 10px 0px;
+    margin-bottom: 2px;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+}
+
+.buylabel{
+    grid-column: 1/2;
+    text-align: center;
+    color: rgb(58, 143, 83);
+    background-color: rgba(60, 109, 82, 0.966);
+    width: 50%;
+    position: relative;
+    left:15%;
+    border-right: 3px solid rgb(81, 133, 65);
+}
+.ordername{
+    border-right: 2px solid rgb(0, 63, 99);
+    grid-column: 2/3;
+    text-align: right;
+    padding-right: 5px;
+}
+.ordershare{
+    grid-column: 3/4;
+    text-align: center;
+}
+.orderprice{
+    grid-column: 4/5;
+    width: 60%;
+    text-align: right;
 }
