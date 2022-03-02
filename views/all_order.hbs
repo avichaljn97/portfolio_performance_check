@@ -1,0 +1,51 @@
+<html>
+	<head>
+		<link href="/css/style.css" rel="stylesheet">
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+		<script src="https://cdn.jsdelivr.net/npm/luxon@^2"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@^1"></script>
+		<script src="./chart-widget/chartjs-chart-finanacials.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+		<link href='https://css.gg/arrow-left-o.css' rel='stylesheet'>
+		<link href='https://css.gg/list.css' rel='stylesheet'>
+		<link href='https://css.gg/trending.css' rel='stylesheet'>
+	</head>
+	<body>
+		<div class="navbar" id="navbar">
+			<div class="home" onclick="location.href='/home'" id="home">HOME</div>
+			<div class="portfolio" id="portfolio" onclick="location.href='/portfolio'">PORTFOLIO</div>
+			<div class="all_order current" id="all_order" onclick="location.href='/all-order'">ORDER LIST</div>
+			<div class="logout" id="logout" onclick="location.href='/logout'">LOGOUT</div>
+		</div>
+        <div class="orders">
+            {{#each all}}
+            <div class="each_date">{{this.date}}</div>
+            <div class="each_date_trade">
+                {{#each this.buy}}
+                <div class="indata each_date_trade_buy">
+                    <div class="buylabel">BUY</div>
+                    <div class="ordername">{{this.stock_name}}</div>
+                    <div class="ordershare">{{this.shares}}</div>
+                    <div class="orderprice">{{this.price}}</div>
+                </div>
+                {{/each}}
+                {{#each this.sell}}
+                <div class="indata each_date_trade_sell">
+                    <div class="selllabel">SELL</div>
+                    <div class="ordername">{{this.stock_name}}</div>
+                    <div class="ordershare">{{this.shares}}</div>
+                    <div class="orderprice">{{this.price}}</div>
+                </div>
+                {{/each}}
+            </div>
+            {{/each}}
+        </div>
+	</body>
+    <script src="./chart-widget/canvas.js">
+	</script>
+</html>
