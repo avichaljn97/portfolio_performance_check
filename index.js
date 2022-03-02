@@ -314,8 +314,6 @@ app.post('/portfolio',isAuth,function(request,response){
 
 app.get('/portfolio',isAuth,function(request,response){
     var holding=[];
-
-    console.log(request.session);
     if(request.session.status){
         delete request.session.status;
     }
@@ -397,6 +395,22 @@ app.get('/home',isAuth,function(request,response){
 
 app.get('/portfolio/:name',isAuth,function(request,response){
     response.render("index");
+});
+
+app.get('/all-order',isAuth,function(request,response){
+    var holdingDetail=JSON.parse(fs.readFileSync(request.session.path+"holding.json"));
+    
+    var alldata=[];
+    for(each in holdingDetail.daysTraded){
+        let date=holdingDetail.daysTraded[each];
+        let temp=Object.create(holdingDetail[date]);
+        date=new Date(date);
+        temp["date"]=date;
+        alldata.push(temp);
+    }
+    response.render("all_order",{
+        all:alldata
+    });
 });
 
 app.listen(port,function(){
