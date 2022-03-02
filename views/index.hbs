@@ -16,6 +16,7 @@
 	</head>
 	<body>
 		<div class="TransactModalBox">
+			<div class="Transact_output"></div>
 			<div class="ModalBox">
 				<div class="header">
 				</div>
@@ -23,14 +24,14 @@
 						<label class="stocklabel">Stock Name</label>
 						<input id="myInput" class="myInput" type="text" onclick="initialautocomplete();" name="stockname" placeholder="Stock Name">
 
-						<label class="datelabel">Date</label>
-						<input class="date" type ="date"  name="date" required>
-
 						<label class="qtylabel">Qty</label>
 						<input class="quantity" type ="number"  name="qty" required>
 
 						<label class="pricelabel">Price</label>
 						<input class="price" type="number" name="price" required>
+
+						<label class="datelabel">Date</label>
+						<input class="date" type ="date"  name="date" required>
 
 						<div class="footer">
 
@@ -43,6 +44,7 @@
 		<div class="navbar" id="navbar">
 			<div class="home" onclick="location.href='/home'" id="home">HOME</div>
 			<div class="portfolio current" id="portfolio" onclick="location.href='/portfolio'">PORTFOLIO</div>
+			<div class="all_order" id="all_order" onclick="location.href='/all-order'">ORDER LIST</div>
 			<div class="logout" id="logout" onclick="location.href='/logout'">LOGOUT</div>
 		</div>
 		<div class="labelAndDetail">
