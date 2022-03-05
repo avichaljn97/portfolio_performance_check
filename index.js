@@ -91,57 +91,89 @@ function check_stock_already_exists(arr,stock){
 
 function creatingPortfolioReturnJSON(path){
     var holding=JSON.parse(fs.readFileSync(path+"holding.json"));
-    var stocksTraded=holding.stocksTraded;
     var portfolioPerformance={daysTraded:[],timestamp:[],LTP:[],investment_done:[],percentChange:[]};
     if(JSON.stringify(holding) == '{}'){
         fs.writeFileSync(path+'portfolioPerformance.json',JSON.stringify(portfolioPerformance,null,2));
         return;
     }
-    portfolioPerformance["daysTraded"]=holding.daysTraded;
-    for(i=0;i<holding.daysTraded.length;i++){
-        var timestamp=holding.daysTraded[i];//days traded on
-        for(stock in stocksTraded){
-            var idx_buy=check_stock_already_exists(holding[timestamp].buy,stock);//checking if the traded stock was traded on that timestamp or not
-            if(idx_buy!=-1){
-                var stockHistoricbuffer=JSON.parse(fs.readFileSync("./nse_stocks/"+stock+".json"));
-                if(portfolioPerformance.timestamp.length==0){
-                    portfolioPerformance.timestamp=stockHistoricbuffer.timestamp.slice(0,stockHistoricbuffer.timestamp.indexOf(timestamp)+1);
-                    portfolioPerformance.LTP=stockHistoricbuffer.close.slice(0,stockHistoricbuffer.timestamp.indexOf(timestamp)+1);
-                    portfolioPerformance.LTP=portfolioPerformance.LTP.map(x=>x*holding[timestamp].buy[idx_buy].shares);
-                    portfolioPerformance.investment_done=Array(stockHistoricbuffer.timestamp.indexOf(timestamp)+1).fill(holding[timestamp].buy[idx_buy].shares*holding[timestamp].buy[idx_buy].price);
-                }
-                else{
-                    var temp=holding[timestamp].buy[idx_buy];
-                    for(date=stockHistoricbuffer.timestamp.indexOf(timestamp);date>=0;date--){
-                        portfolioPerformance.LTP[date]+=stockHistoricbuffer.close[date]*temp.shares;
-                        portfolioPerformance.investment_done[date]+=temp.shares*temp.price;
-                    }
-                }
+    var daysTraded=holding.daysTraded;
+    var buff={};
+
+    portfolioPerformance.daysTraded=daysTraded;
+    //creating for the first bought stock and date
+    var first=holding[daysTraded[0]].buy[0];
+    buff[first.stock_name]={shares:first.shares,price:first.price};
+    var stockhist=JSON.parse(fs.readFileSync("./nse_stocks/"+first.stock_name+".json"));
+    for(each_detail in stockhist){
+        stockhist[each_detail].reverse();
+    }
+    var idx=stockhist.timestamp.indexOf(daysTraded[0]);
+    for(let i=idx;i<stockhist.timestamp.length;i++){
+        portfolioPerformance.timestamp.push(stockhist.timestamp[i]);
+        portfolioPerformance.LTP.push(stockhist.close[i]*first.shares);
+        portfolioPerformance.investment_done.push(first.price*first.shares);
+    }
+    console.log("initial",buff);
+    //eval
+    for(each in daysTraded){
+        //BOUGHT ON daysTraded[each]
+        for(stock_idx in holding[daysTraded[each]].buy){
+            if(each+stock_idx == 0){continue;}
+            var each_stock=holding[daysTraded[each]].buy[stock_idx];
+            if(!buff[each_stock.stock_name]){
+                buff[each_stock.stock_name]={shares:each_stock.shares,price:each_stock.price}
             }
-            var idx_sell=check_stock_already_exists(holding[timestamp].sell,stock);//checking if the traded stock was traded on that timestamp or not
-            if(idx_sell!=-1){
-                var temp=holding[timestamp].sell[idx_sell];
-                for(date=stockHistoricbuffer.timestamp.indexOf(timestamp);date>=0;date--){
-                    for(each in temp.holdings){
-                        portfolioPerformance.LTP[date]-=stockHistoricbuffer.close[date]*temp.holdings[each].shares;
-                        portfolioPerformance.investment_done[date]-=temp.holdings[each].shares*temp.holdings[each].price;
-                    }
+            else{
+                console.log(buff[each_stock.stock_name].shares*buff[each_stock.stock_name].price
+                    + each_stock.shares*each_stock.price)/(buff[each_stock.stock_name].shares + each_stock.shares);
+                var temp=(buff[each_stock.stock_name].shares*buff[each_stock.stock_name].price
+                + each_stock.shares*each_stock.price)/(buff[each_stock.stock_name].shares + each_stock.shares);
+                
+                buff[each_stock.stock_name].price=temp;
+                buff[each_stock.stock_name].shares+=each_stock.shares;
+            }
+
+            var stockhist=JSON.parse(fs.readFileSync("./nse_stocks/"+each_stock.stock_name+".json"));
+            for(each_detail in stockhist){
+                stockhist[each_detail].reverse();
+            }
+            var idx=stockhist.timestamp.indexOf(daysTraded[each]);
+            console.log(daysTraded[each],idx-stockhist.timestamp.length);
+            var ts_idx=portfolioPerformance.timestamp.indexOf(daysTraded[each]);
+            for(let i=idx;i<stockhist.timestamp.length;i++){
+                portfolioPerformance.LTP[ts_idx]+=stockhist.close[i]*each_stock.shares;
+                portfolioPerformance.investment_done[ts_idx]+=each_stock.price*each_stock.shares;
+                ts_idx++;
+            }
+        }
+
+        //SOLD ON daysTraded[each]
+        for(stock_idx in holding[daysTraded[each]].sell){
+            var each_stock=holding[daysTraded[each]].sell[stock_idx];
+            for(each_sold in each_stock.holdings){
+                buff[each_stock.stock_name].shares-=each_stock.holdings[each_sold].shares
+            }
+
+            var stockhist=JSON.parse(fs.readFileSync("./nse_stocks/"+each_stock.stock_name+".json"));
+            for(each_detail in stockhist){
+                stockhist[each_detail].reverse();
+            }
+            var idx=stockhist.timestamp.indexOf(daysTraded[each]);
+            var ts_idx=portfolioPerformance.timestamp.indexOf(daysTraded[each]);
+            for(let i=idx;i<stockhist.timestamp.length;i++){
+                for(each_sold in each_stock.holdings){
+                    portfolioPerformance.LTP[ts_idx]-=stockhist.close[i]*each_stock.holdings[each_sold].shares;
+                    portfolioPerformance.investment_done[ts_idx]-=buff[each_stock.stock_name].price*each_stock.holdings[each_sold].shares;
                 }
+                ts_idx++;
             }
         }
     }
 
-    var temp=portfolioPerformance.investment_done[0];
-    for(each=0;each<portfolioPerformance.investment_done.length-1;each++){
-        if(portfolioPerformance.investment_done[each]!=temp){
-            portfolioPerformance.percentChange.push(portfolioPerformance.LTP[each]/portfolioPerformance.investment_done[each])
-        }
-        else{
-            portfolioPerformance.percentChange.push(portfolioPerformance.LTP[each]/portfolioPerformance.LTP[each+1])
-        }
-        temp=portfolioPerformance.investment_done[each];
+    for(let i=0;i<portfolioPerformance.timestamp.length;i++){
+        portfolioPerformance.percentChange.push(portfolioPerformance.LTP[i]/portfolioPerformance.investment_done[i]);
     }
-    portfolioPerformance.percentChange.push(portfolioPerformance.LTP[portfolioPerformance.LTP.length - 1]/portfolioPerformance.investment_done[portfolioPerformance.investment_done.length -1])
+    console.log(buff);
     fs.writeFileSync(path+'portfolioPerformance.json',JSON.stringify(portfolioPerformance,null,2));
 }
 
@@ -306,7 +338,7 @@ app.post('/portfolio',isAuth,function(request,response){
     }
     else{
         request.session.status={status_code:0,status:"Transaction Successful."}
-        operation(req.buysell,req.date,req.stockname,parseInt(req.quantity),parseInt(req.price),request.session.path)
+        operation(req.buysell,req.date,req.stockname,parseInt(req.quantity),Number(req.price),request.session.path)
     }
     response.json(request.session.status);
     response.end();
