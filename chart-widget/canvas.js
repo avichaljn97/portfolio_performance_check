@@ -468,7 +468,7 @@ function drawCross(){
 		const{ctx, chartArea,scales:{x,y}}=myChart;
 		var chart_h=chartArea.height;
 		var level=chart_h/20;
-		var date=performanceData.timestamp.length - x.getValueForPixel(cross.X)-1;
+		var date=x.getValueForPixel(cross.X);
 		var price=y.getPixelForValue(percentChange[x.getValueForPixel(cross.X)]);
 		var ts=performanceData.timestamp;
 		if(true){
@@ -752,11 +752,9 @@ async function moreDetail(obj,stock){
 
 function getPortfolioPerformace_data(percentChange){
 	var output=Object.create(percentChange);
-	output=output.reverse();
 	var initial=100;
-	output[0]=output[0]*100;
-	for(let i=1;i<output.length;i++){
-		output[i]=output[i]*output[i-1];
+	for(let i=0;i<output.length;i++){
+		output[i]=output[i]*100;
 	}
 	
 	return output;
@@ -787,7 +785,6 @@ async function in_homepage(){
 	}
 
 	timestamp=Object.create(performanceData.timestamp);
-	timestamp=timestamp.reverse();
 	timestamp.forEach((Element,Index)=>{
 		if(Element!=null){
 			var date = new Date(Element);
@@ -871,7 +868,8 @@ async function in_homepage(){
 			borderWidth:2,
 			fillColor: 'rgba(180,100,100,0.2)',
 			borderColor: 'rgb(75, 192, 192)',
-			pointRadius: 0
+			pointRadius: 0,
+			tension: 0.5
 		}]
 	};
 
@@ -953,6 +951,7 @@ async function transact(obj){
 	var quantity=obj.parentNode.parentNode[1].value;
 	var price=obj.parentNode.parentNode[2].value;
 	var output=obj.parentNode.parentNode.parentNode.parentNode;
+	console.log(price);
 	output=output.getElementsByClassName('Transact_output')[0];
 	if(stockname==''||date==''||quantity==''||price==''||!parseInt(quantity)>0||!parseInt(price)>0){
 		displayoutput(output,"block","Not a valid input.", "rgba(50, 89, 121, 0.918)")
