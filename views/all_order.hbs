@@ -14,6 +14,7 @@
 		<link href='https://css.gg/arrow-left-o.css' rel='stylesheet'>
 		<link href='https://css.gg/list.css' rel='stylesheet'>
 		<link href='https://css.gg/trending.css' rel='stylesheet'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	</head>
 	<body>
 		<div class="navbar" id="navbar">
@@ -24,24 +25,28 @@
 		</div>
         <div class="orders">
             {{#each all}}
-            <div class="each_date">{{this.date}}</div>
-            <div class="each_date_trade">
-                {{#each this.buy}}
-                <div class="indata each_date_trade_buy">
-                    <div class="buylabel">BUY</div>
-                    <div class="ordername">{{this.stock_name}}</div>
-                    <div class="ordershare">{{this.shares}}</div>
-                    <div class="orderprice">{{this.price}}</div>
+            <div class="historydetail">
+                <div class="each_date">{{this.date}}</div>
+                <div class="each_date_trade">
+                    {{#each this.buy}}
+                    <div class="indata each_date_trade_buy">
+                        <div class="buy_label">BUY</div>
+                        <div class="ordername">{{this.stock_name}}</div>
+                        <div class="ordershare">{{this.shares}}</div>
+                        <div class="orderprice">{{this.price}}</div>
+                    </div>
+                    {{/each}}
+                    {{#each this.sell}}
+                    <div class="indata each_date_trade_sell">
+                        <div class="sell_label">SELL</div>
+                        <div class="ordername">{{this.stock_name}}</div>
+                        {{#each this.holdings}}
+                            <div class="ordershare">{{this.shares}}</div>
+                            <div class="orderprice">{{this.price}}</div>
+                        {{/each}}
+                    </div>
+                    {{/each}}
                 </div>
-                {{/each}}
-                {{#each this.sell}}
-                <div class="indata each_date_trade_sell">
-                    <div class="selllabel">SELL</div>
-                    <div class="ordername">{{this.stock_name}}</div>
-                    <div class="ordershare">{{this.shares}}</div>
-                    <div class="orderprice">{{this.price}}</div>
-                </div>
-                {{/each}}
             </div>
             {{/each}}
         </div>
