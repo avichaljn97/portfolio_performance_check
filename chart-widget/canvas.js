@@ -25,17 +25,20 @@ var curr_stock;
 var end;
 var inHomePage=false;
 var home=document.getElementById('home');
-
+var body=document.getElementsByTagName('body');
+var navbar=document.getElementsByClassName('navbar')[0];
+var transactMenu=document.getElementsByClassName('transactMenu')[0];
+var stockheader=document.getElementsByClassName('stockheader')[0];
+var stock=document.getElementsByClassName('stock');
+var inMobile=false;
 var startX,startY,drag=false;
 function resize(){
 	end=29;
 	var fontsize;
 	if(screen.width<500 || window.innerWidth<500){
 		end=29;
-		crt_contain.style.gridRow="5/-1";
-		crt_contain.style.gridColumn="1/-1";
-
-		fontsize=25;
+		inMobile=true;
+		fontsize=15;
 	}
 	else{
 		end=59;
@@ -591,7 +594,14 @@ var col7=document.getElementsByClassName('dayChange');
 var sn;
 
 function disp(obj,stock_name,stock_desc){
-
+	if(inMobile){
+		lt.style.display="none";	
+	}
+	else{
+		body.style.gridTemplateColumns="repeat(15,1fr)";
+		body.style.gridColumnGap="1%";
+		lt.style.gridColumn="10/-1";
+	}
 	sn=stock_name;
 	var stockdesc=document.getElementsByClassName("stockdesc")[0];
 
@@ -628,6 +638,9 @@ function hide_moredetail(obj){
 }
 
 function revert(){
+	if(inMobile){
+		lt.style.display="block";
+	}
 	crt_contain.style.display="none";
 	label.style.display="none";
 	body.style.gridTemplateColumns="repeat(1,1fr)";
@@ -780,9 +793,9 @@ async function in_homepage(){
 	performanceData=await response.json();
 	if(performanceData.daysTraded.length==0){
 		crt_contain.innerHTML="<div class='temp' style='grid-row:10/11;grid-column:1/-1;text-align:center'>No trades made.</div>";
-
 		return;
 	}
+	var firstdaytraded=performanceData.daysTraded[0];
 
 	timestamp=Object.create(performanceData.timestamp);
 	timestamp.forEach((Element,Index)=>{
@@ -793,16 +806,22 @@ async function in_homepage(){
 			"/"+date.getFullYear();
 		}
 	});
-
+	
+	for(let i=0;i<performanceData.percentChange.length;i++){
+		performanceData.percentChange[i]=performanceData.percentChange[i]/performanceData.percentChange[0];
+	}
 	percentChange=getPortfolioPerformace_data(performanceData.percentChange);
 
-	var performancedata=[];
-
-	for(let i=0;i<timestamp.length;i++){
-		performancedata.push({x:timestamp[i],y:percentChange[i]});
+	const niftydata=await fetch("/nse_stocks/NIFTY50.json");
+	const jsondata= await niftydata.json();
+	var idx=jsondata.timestamp.indexOf(firstdaytraded);
+	var val=jsondata.close[idx];
+	var nifty=[];
+	for(let i=idx;i>=0;i--){
+		nifty.push(jsondata.close[i]/val)
 	}
-
-
+	nifty=getPortfolioPerformace_data(nifty);
+	console.log(jsondata);
 
 	var options = {
 		onResize: resize(),
@@ -860,9 +879,10 @@ async function in_homepage(){
 	};
 
 	var data={
+		label: timestamp,
 		datasets: [{
 			type: 'line',
-			data: performancedata,
+			data: percentChange,
 			fill: true,
 			fillColor: "green",
 			borderWidth:2,
@@ -870,7 +890,19 @@ async function in_homepage(){
 			borderColor: 'rgb(75, 192, 192)',
 			pointRadius: 0,
 			tension: 0.5
-		}]
+		},
+		{
+			type: 'line',
+			data: nifty,
+			fill: true,
+			fillColor: "green",
+			borderWidth:2,
+			fillColor: 'rgba(180,100,100,0.2)',
+			borderColor: 'rgb(125,250,100)',
+			pointRadius: 0,
+			tension: 0.5
+		}
+	]
 	};
 
 	if(myChart==null){
