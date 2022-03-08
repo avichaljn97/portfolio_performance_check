@@ -13,6 +13,8 @@
 		<link href='https://css.gg/arrow-left-o.css' rel='stylesheet'>
 		<link href='https://css.gg/list.css' rel='stylesheet'>
 		<link href='https://css.gg/trending.css' rel='stylesheet'>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 	</head>
 	<body>
 		<div class="TransactModalBox">
@@ -28,7 +30,7 @@
 						<input class="quantity" type ="number"  name="qty" required>
 
 						<label class="pricelabel">Price</label>
-						<input class="price" type="number" name="price" required>
+						<input class="price" type="number" step="0.01" name="price" required>
 
 						<label class="datelabel">Date</label>
 						<input class="date" type ="date"  name="date" required>
@@ -83,6 +85,10 @@
 			<div class="duration_button ALL" onclick="viewALL()">All</div>
 		</div>
 		<div class="lateruse">
+			<div class="transactMenu">
+				<div class="buy" onclick="display_modalbox(this,1)">BUY</div>
+			    <div class="sell" onclick="display_modalbox(this,-1)">SELL</div>
+			</div>
 			<div class="stockheader">
 				<div class="stock_name">Instrument</div>
 				<div class="stock_quantity">
@@ -93,10 +99,6 @@
 				<div class="profitloss">P&L</div>
 				<div class="change">Net % Chg</div>
 				<div class="dayChange">Day % Chg</div>
-			</div>
-			<div class="transactMenu">
-				<div class="buy" onclick="display_modalbox(this,1)">BUY</div>
-			    <div class="sell" onclick="display_modalbox(this,-1)">SELL</div>
 			</div>
 			{{#each all}}
 			<div class="stock">
