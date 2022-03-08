@@ -1,10 +1,9 @@
 body{
-    height: 1000px;
     background-color: rgba(242, 237, 208, 0.8);
     margin: 0px auto;
     display: grid;
     grid-template-columns: repeat(1, 1fr);
-    grid-template-rows: repeat(30, 1fr);
+    grid-template-rows: repeat(20, 1fr);
     transition-property: all;
     transition-duration: 1s;
     transition-timing-function: ease-in;
@@ -217,7 +216,7 @@ input{
 
 .lateruse{
     grid-column: 1/ -1;
-    grid-row: 4 / 19;
+    grid-row: 4 / -1;
     transition-property: all;
     transition-duration: 0.5s;
     transition-timing-function: ease-in;
@@ -396,6 +395,7 @@ input{
 
 .stockheader{
     background-color: olivedrab;
+    margin: 0px 5px;
     margin-top: 1px;
     display: grid;
     grid-template-columns: repeat(9, 1fr);
@@ -430,14 +430,17 @@ input{
     text-align: center;
     padding: 10px;
 }
-
+.stock{
+    height: 50px;
+    margin:5px;
+}
 .each_stock{
     margin-top: 1px;
     display: grid;
     grid-template-columns: repeat(9, 1fr);
     grid-column-gap:2%;
     background-color: aliceblue;
-    height: 50px;
+    height: 100%;
     transition: width 1s ease-in;
 }
 
@@ -597,20 +600,22 @@ input{
 }
 
 .each_date{
+    height: 100%;
     margin: 10px 2.5%;
 }
 
 .indata{
     background-color: rgb(70, 95, 95);
     width: 100%;
-    height: 15px;
+    min-height: 15px;
     padding: 10px 0px;
     margin-bottom: 2px;
     display: grid;
+    border-radius: 5px;
     grid-template-columns: repeat(4,1fr);
 }
 
-.buylabel{
+.buy_label{
     grid-column: 1/2;
     text-align: center;
     color: rgb(58, 143, 83);
@@ -620,18 +625,145 @@ input{
     left:15%;
     border-right: 3px solid rgb(81, 133, 65);
 }
+.sell_label{
+    grid-column: 1/2;
+    text-align: center;
+    color: rgb(170, 77, 101);
+    background-color: rgba(226, 97, 125, 0.966);
+    width: 50%;
+    position: relative;
+    left:15%;
+    padding: 2px 0px;
+    border-right: 3px solid rgb(226, 32, 81);
+}
 .ordername{
     border-right: 2px solid rgb(0, 63, 99);
     grid-column: 2/3;
     text-align: right;
+    padding: 2px 0px;
     padding-right: 5px;
 }
 .ordershare{
     grid-column: 3/4;
+    padding: 2px 0px;
     text-align: center;
 }
 .orderprice{
     grid-column: 4/5;
     width: 60%;
     text-align: right;
+    margin: 1px 0px;
+    border-left: 1px solid rgba(38, 51, 51, 0.856);
+}
+.each_date{
+    border-bottom:1px solid rgb(96, 94, 97);
+}
+.historydetail{
+    margin: 10px;
+    background-color: rgb(59, 78, 78);
+    border:1px solid rgb(115, 130, 168);
+    border-radius: 3px;
+}
+
+@media (max-width: 500px){
+    .body{
+        height:auto;
+        grid-template-rows: repeat(20,1fr);
+    }
+    .chart_container{
+        grid-row: 5/-1;
+        grid-column: 1/-1;
+    }
+    .buy,.sell{
+        font-size: 20px;
+        padding: 5px;
+    }
+    .ModalBox{
+        position: fixed;
+        margin: 25px;
+        width: calc(100% - 40px);
+        height: calc(100% - 40px);
+        border-radius: 2px;
+    }
+    .stockheader{
+        display: none;
+    }
+    .lateruse{
+        grid-row: 3/-1;
+        font-size: 10px;
+    }
+    .transactMenu{
+        margin: 5px;
+        grid-column-gap: 1%;
+    }
+    .stock{
+        height: 100px;
+        font-size: 15px;
+        border-radius: 5.5px;
+    }
+    .each_stock{
+        border-radius: 5.5px;
+        background-color: rgb(82, 67, 92);
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        grid-template-rows: repeat(3,1fr);
+    }
+    .stock_name{
+        grid-column: 1/-2;
+        grid-row: 1/2;
+        padding: 5px;
+        font-size: 17px;
+    }
+    .stock_quantity{
+        text-align: right;
+        grid-column: -2/-1;
+        grid-row: 1/2;
+        padding: 5px;
+    }
+    .qty::after{
+        content: " shares";
+    }
+    .qty{
+        grid-column: 2/-1;
+    }
+    .avg_price{
+        grid-column: 1/3;
+        grid-row: 2/3;
+        padding: 5px;
+        text-align: left;
+    }
+    .avg_price::before{
+        content: "Avg. Price: ";
+    }
+    .LTP::before{
+        content: "LTP: ";
+    }
+    .LTP{
+        grid-column: 2/-1;
+        grid-row: 2/3;
+        padding: 5px;
+        text-align: right;
+    }
+    .profitloss::before{
+        color: #000;
+        content: "P/L: ";
+    }
+    .profitloss{
+        grid-column: -2/-1;
+        grid-row: 3/4;
+        padding: 5px;
+    }
+    .change::before{
+        content: "Net Change: ";
+        color: #000;
+    }
+    .change{
+        text-align: left;
+        grid-column: 1/3;
+        grid-row: 3/4;
+        padding: 5px;
+    }
+    .dayChange{
+        display: none;
+    }
 }
